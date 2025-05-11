@@ -1,8 +1,3 @@
-Here's a complete `README.md` for your combined ML project: **Fraud Deception in Network** (Phishing URL + Credit Card Fraud Detection). It's structured for GitHub and includes all the necessary sections.
-
----
-
-````markdown
 # 🚨 Fraud Deception in Network
 
 This project is a dual-module Machine Learning system designed to detect:
@@ -111,7 +106,3 @@ D. Ravi Kiran
 *Machine Learning | AI | Cybersecurity Enthusiast*
 
 ---
-
-```
-
-
