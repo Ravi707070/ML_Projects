@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CineSeek - Movie Recommendations</title>
+    <meta name="description" content="Discover your next favorite movie with AI-powered recommendations" />
+    <meta name="author" content="CineSeek" />
+
+    <meta property="og:title" content="CineSeek - Movie Recommendations" />
+    <meta property="og:description" content="Discover your next favorite movie with AI-powered recommendations" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80" />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'cinema-dark': '#1A1F2C',
+              'cinema-gray': '#8E9196',
+              'cinema-purple': '#9b87f5',
+              'cinema-purple-light': '#D6BCFA',
+              'cinema-purple-vibrant': '#8B5CF6',
+              'cinema-purple-secondary': '#7E69AB',
+            },
+            backgroundImage: {
+              'hero-pattern': "linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(26, 31, 44, 0.9)), url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80')",
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out',
+              'pulse-slow': 'pulseSlow 2s ease-in-out infinite',
+              'shimmer': 'shimmer 2s infinite linear'
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' }
+              },
+              pulseSlow: {
+                '0%, 100%': { opacity: '1' },
+                '50%': { opacity: '0.7' }
+              },
+              shimmer: {
+                '0%': { backgroundPosition: '-200% 0' },
+                '100%': { backgroundPosition: '200% 0' }
+              }
+            },
+          }
+        }
+      };
+    </script>
+    
+    <style>
+      body {
+        background-color: #1A1F2C;
+        color: #fff;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      
+      .glass-card {
+        backdrop-filter: blur(12px);
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .text-gradient {
+        background: linear-gradient(to right, #D6BCFA, #9b87f5, #8B5CF6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      .selection-color {
+        @apply selection:bg-cinema-purple/20 selection:text-white;
+      }
+      
+      /* Added styles for background transition */
+      .hero-section {
+        transition: background-image 1s ease-in-out;
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+      }
+    </style>
+  </head>
+  
+  <body class="min-h-screen selection-color">
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 transition-all duration-300 ease-in-out" id="navbar">
+      <div class="container mx-auto flex items-center justify-between px-4 py-4">
+        <div class="flex items-center">
+          <i class="fas fa-film text-cinema-purple mr-2 text-xl"></i>
+          <span class="text-white font-bold text-xl">CineSeek</span>
+        </div>
+
+        <div class="hidden md:flex space-x-8">
+          <a href="#" class="text-white hover:text-cinema-purple transition-colors">
+            Home
+          </a>
+          <a href="#search" class="text-white hover:text-cinema-purple transition-colors">
+            Discover
+          </a>
+          <a href="#about" class="text-white hover:text-cinema-purple transition-colors">
+            About
+          </a>
+          <a href="#contact" class="text-white hover:text-cinema-purple transition-colors">
+            Contact
+          </a>
+        </div>
+
+        <div class="md:hidden">
+          <button class="text-white focus:outline-none" id="mobileMenuButton">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Mobile Menu -->
+      <div class="hidden bg-black/95 md:hidden absolute w-full" id="mobileMenu">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex flex-col space-y-4">
+            <a href="#" class="text-white hover:text-cinema-purple transition-colors">
+              Home
+            </a>
+            <a href="#search" class="text-white hover:text-cinema-purple transition-colors">
+              Discover
+            </a>
+            <a href="#about" class="text-white hover:text-cinema-purple transition-colors">
+              About
+            </a>
+            <a href="#contact" class="text-white hover:text-cinema-purple transition-colors">
+              Contact
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section with changing background -->
+    <section id="hero" class="hero-section min-h-screen w-full bg-hero-pattern flex items-center">
+      <div class="container mx-auto px-4 py-20">
+        <div class="max-w-3xl animate-fade-in">
+          <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
+            <span class="text-white">Find Your Next</span>
+            <br />
+            <span class="text-gradient">Favorite Movie</span>
+          </h1>
+          <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl">
+            Discover movies you'll love based on what you already enjoy. 
+            Our machine learning algorithm analyzes your taste to provide personalized recommendations.
+          </p>
+          <button 
+            onclick="scrollToSearch()"
+            class="group relative inline-flex items-center justify-center px-8 py-3 overflow-hidden rounded-full bg-cinema-purple text-white transition-all duration-300 ease-out hover:bg-cinema-purple-vibrant hover:shadow-md hover:shadow-cinema-purple/20 focus:outline-none focus:ring-2 focus:ring-cinema-purple-light focus:ring-offset-2 focus:ring-offset-cinema-dark"
+          >
+            <span class="relative mr-2">Get Started</span>
+            <i class="fas fa-arrow-down transition-transform group-hover:translate-y-1"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Search Section -->
+    <section id="search" class="py-20 px-4">
+      <div class="container mx-auto">
+        <div class="max-w-3xl mx-auto text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">
+            What movie do you <span class="text-cinema-purple">love?</span>
+          </h2>
+          <p class="text-gray-400 text-lg">
+            Enter a movie you enjoyed, and we'll find similar films for you to discover.
+          </p>
+        </div>
+
+        <div class="max-w-2xl mx-auto">
+          <div class="glass-card rounded-xl p-6 md:p-8">
+            <form id="searchForm" class="space-y-4">
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                  <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input
+                  type="text"
+                  id="movieInput"
+                  placeholder="Try: Inception"
+                  class="w-full py-4 pl-12 pr-4 rounded-lg bg-black/60 border border-gray-700 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cinema-purple focus:border-transparent transition-all duration-300"
+                />
+              </div>
+
+              <div class="flex justify-center">
+                <button
+                  type="submit"
+                  id="searchButton"
+                  class="px-8 py-3 rounded-lg font-medium bg-cinema-purple hover:bg-cinema-purple-vibrant text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cinema-purple-light focus:ring-offset-2 focus:ring-offset-cinema-dark flex items-center justify-center min-w-[180px]"
+                >
+                  <span id="buttonText">Recommend</span>
+                  <div id="loadingSpinner" class="hidden">
+                    <div class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <span>Finding...</span>
+                  </div>
+                </button>
+              </div>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-gray-500">
+              <p>Popular searches: 
+                <button 
+                  onclick="setSearchQuery('Inception')"
+                  class="mx-1 text-cinema-purple-light hover:text-cinema-purple transition-colors"
+                >
+                  Inception
+                </button>
+                <span>•</span>
+                <button 
+                  onclick="setSearchQuery('The Dark Knight')"
+                  class="mx-1 text-cinema-purple-light hover:text-cinema-purple transition-colors"
+                >
+                  The Dark Knight
+                </button>
+                <span>•</span>
+                <button 
+                  onclick="setSearchQuery('Pulp Fiction')"
+                  class="mx-1 text-cinema-purple-light hover:text-cinema-purple transition-colors"
+                >
+                  Pulp Fiction
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Recommendations Section -->
+    <section id="recommendations" class="py-16 px-4 hidden">
+      <div class="container mx-auto">
+        <div class="max-w-7xl mx-auto">
+          <h2 class="text-2xl md:text-3xl font-bold mb-2 text-white">
+            Because you enjoyed <span class="text-cinema-purple" id="queryMovie"></span>
+          </h2>
+          <p class="text-gray-400 mb-8">
+            Here are some movies we think you'll love based on your taste.
+          </p>
+          <div id="moviesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Movie cards will be inserted here -->
+          </div>
+
+          <div class="mt-12 text-center">
+            <button class="px-6 py-2 bg-transparent border border-cinema-purple text-cinema-purple hover:bg-cinema-purple hover:text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-cinema-purple-light focus:ring-offset-2 focus:ring-offset-cinema-dark"
+              id="loadMoreBtn">
+              Load More Recommendations
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Loading/Processing Section -->
+    <section id="loading" class="py-16 px-4 hidden">
+      <div class="container mx-auto">
+        <div class="max-w-7xl mx-auto">
+          <h2 class="text-2xl md:text-3xl font-bold mb-8 text-white text-center">
+            Finding recommendations for <span class="text-cinema-purple" id="loadingMovie"></span>...
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Loading Skeleton Cards -->
+            <div class="rounded-lg overflow-hidden">
+              <div class="aspect-[2/3] bg-gradient-to-br from-cinema-dark via-cinema-dark to-gray-800 animate-pulse-slow"></div>
+              <div class="p-4 bg-black/80">
+                <div class="h-6 bg-gray-800 rounded animate-pulse-slow mb-2"></div>
+                <div class="h-4 bg-gray-800 rounded animate-pulse-slow w-1/2"></div>
+              </div>
+            </div>
+            <div class="rounded-lg overflow-hidden">
+              <div class="aspect-[2/3] bg-gradient-to-br from-cinema-dark via-cinema-dark to-gray-800 animate-pulse-slow"></div>
+              <div class="p-4 bg-black/80">
+                <div class="h-6 bg-gray-800 rounded animate-pulse-slow mb-2"></div>
+                <div class="h-4 bg-gray-800 rounded animate-pulse-slow w-1/2"></div>
+              </div>
+            </div>
+            <div class="rounded-lg overflow-hidden">
+              <div class="aspect-[2/3] bg-gradient-to-br from-cinema-dark via-cinema-dark to-gray-800 animate-pulse-slow"></div>
+              <div class="p-4 bg-black/80">
+                <div class="h-6 bg-gray-800 rounded animate-pulse-slow mb-2"></div>
+                <div class="h-4 bg-gray-800 rounded animate-pulse-slow w-1/2"></div>
+              </div>
+            </div>
+            <div class="rounded-lg overflow-hidden">
+              <div class="aspect-[2/3] bg-gradient-to-br from-cinema-dark via-cinema-dark to-gray-800 animate-pulse-slow"></div>
+              <div class="p-4 bg-black/80">
+                <div class="h-6 bg-gray-800 rounded animate-pulse-slow mb-2"></div>
+                <div class="h-4 bg-gray-800 rounded animate-pulse-slow w-1/2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- About Section -->
+    <div id="about" class="py-20 px-4 bg-gradient-to-b from-cinema-dark to-black">
+      <div class="container mx-auto">
+        <div class="max-w-3xl mx-auto text-center">
+          <h2 class="text-3xl md:text-4xl font-bold mb-6 text-white">
+            About <span class="text-gradient">CineSeek</span>
+          </h2>
+          <p class="text-gray-300 mb-6">
+            CineSeek uses advanced machine learning algorithms to analyze thousands of movies
+            and find the perfect matches for your unique taste. Our recommendation engine goes beyond
+            simple genre matching to understand the deeper elements that make you love a film.
+          </p>
+          <p class="text-gray-300">
+            Whether you're looking for hidden gems, critically acclaimed masterpieces, or something
+            completely new, CineSeek helps you cut through the noise and discover movies you'll truly enjoy.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-black/80 backdrop-blur-sm border-t border-gray-800">
+      <div class="container mx-auto py-12 px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div class="md:col-span-2">
+            <div class="flex items-center mb-4">
+              <i class="fas fa-film text-cinema-purple mr-2"></i>
+              <span class="text-white font-bold text-xl">CineSeek</span>
+            </div>
+            <p class="text-gray-400 mb-4 max-w-md">
+              Discover your next favorite movie with our AI-powered recommendation engine. 
+              Personalized suggestions based on your unique taste.
+            </p>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-400 hover:text-cinema-purple transition-colors">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-cinema-purple transition-colors">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-cinema-purple transition-colors">
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+          </div>
+          
+          <div>
+            <h3 class="text-white font-semibold text-lg mb-4">Links</h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="text-gray-400 hover:text-cinema-purple transition-colors">Home</a>
+              </li>
+              <li>
+                <a href="#search" class="text-gray-400 hover:text-cinema-purple transition-colors">Discover</a>
+              </li>
+              <li>
+                <a href="#about" class="text-gray-400 hover:text-cinema-purple transition-colors">About</a>
+              </li>
+              <li>
+                <a href="#contact" class="text-gray-400 hover:text-cinema-purple transition-colors">Contact</a>
+              </li>
+            </ul>
+          </div>
+          
+          <div id="contact">
+            <h3 class="text-white font-semibold text-lg mb-4">Contact</h3>
+            <ul class="space-y-2">
+              <li class="text-gray-400">
+                <a href="mailto:info@cineseek.com" class="hover:text-cinema-purple transition-colors">info@cineseek.com</a>
+              </li>
+              <li class="text-gray-400">
+                <a href="tel:+1234567890" class="hover:text-cinema-purple transition-colors">+1 (234) 567-890</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="mt-12 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+          <p>© <span id="currentYear"></span> CineSeek. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+      // Get current year for footer
+      document.getElementById('currentYear').innerText = new Date().getFullYear();
+
+      // Mobile Menu Toggle
+      document.getElementById('mobileMenuButton').addEventListener('click', () => {
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenu.classList.toggle('hidden');
+      });
+
+      // Navbar Scroll Effect
+      window.addEventListener('scroll', () => {
+        const navbar = document.getElementById('navbar');
+        if (window.scrollY > 10) {
+          navbar.classList.add('bg-black/80', 'backdrop-blur-md', 'shadow-lg', 'py-2');
+          navbar.classList.remove('py-4', 'bg-transparent');
+        } else {
+          navbar.classList.add('bg-transparent', 'py-4');
+          navbar.classList.remove('bg-black/80', 'backdrop-blur-md', 'shadow-lg', 'py-2');
+        }
+      });
+
+      // Scroll to Search Section
+      function scrollToSearch() {
+        document.getElementById('search').scrollIntoView({ behavior: 'smooth' });
+      }
+
+      // Set search query from suggested movies
+      function setSearchQuery(movie) {
+        document.getElementById('movieInput').value = movie;
+      }
+
+      // Background image rotation for hero section
+      const backgroundImages = [
+        "url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1920&q=80')",
+        "url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=1920&q=80')",
+        "url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1920&q=80')",
+        "url('https://images.unsplash.com/photo-1574267432553-4b4628081c31?auto=format&fit=crop&w=1920&q=80')",
+        "url('https://images.unsplash.com/photo-1543536448-1e76fc2795bf?auto=format&fit=crop&w=1920&q=80')"
+      ];
+      
+      let currentBgIndex = 0;
+      const heroElement = document.getElementById('hero');
+      
+      // Apply initial gradient overlay to the first background
+      heroElement.style.backgroundImage = `linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(26, 31, 44, 0.9)), ${backgroundImages[0]}`;
+      
+      // Change background every 5 seconds
+      setInterval(() => {
+        currentBgIndex = (currentBgIndex + 1) % backgroundImages.length;
+        heroElement.style.backgroundImage = `linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(26, 31, 44, 0.9)), ${backgroundImages[currentBgIndex]}`;
+      }, 5000);
+
+      // Connect to Flask ML model for recommendations
+      document.getElementById('searchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const movieInput = document.getElementById('movieInput');
+        const searchQuery = movieInput.value.trim();
+        
+        if (searchQuery) {
+          // Show loading section
+          document.getElementById('loadingMovie').textContent = searchQuery;
+          document.getElementById('loading').classList.remove('hidden');
+          document.getElementById('recommendations').classList.add('hidden');
+          
+          // Hide search button text, show spinner
+          document.getElementById('buttonText').classList.add('hidden');
+          document.getElementById('loadingSpinner').classList.remove('hidden');
+          
+          // Call Flask API for ML recommendations
+          fetch('http://localhost:5000/recommend', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ movie: searchQuery })
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Update recommendation section
+            document.getElementById('queryMovie').textContent = searchQuery;
+            
+            // Render the movie cards with API data
+            renderMovieCards(data.recommendations || []);
+            
+            // Show recommendations, hide loading
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('recommendations').classList.remove('hidden');
+            
+            // Reset button
+            document.getElementById('buttonText').classList.remove('hidden');
+            document.getElementById('loadingSpinner').classList.add('hidden');
+            
+            // Scroll to recommendations
+            document.getElementById('recommendations').scrollIntoView({behavior: 'smooth', block: 'start'});
+          })
+          .catch(error => {
+            console.error('Error fetching recommendations:', error);
+            
+            // Fallback to sample movies in case of error
+            document.getElementById('queryMovie').textContent = searchQuery;
+            renderMovieCards(sampleMovies);
+            
+            // Show recommendations, hide loading
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('recommendations').classList.remove('hidden');
+            
+            // Reset button
+            document.getElementById('buttonText').classList.remove('hidden');
+            document.getElementById('loadingSpinner').classList.add('hidden');
+            
+            // Scroll to recommendations
+            document.getElementById('recommendations').scrollIntoView({behavior: 'smooth', block: 'start'});
+          });
+        }
+      });
+
+      // Sample movie data as fallback
+      const sampleMovies = [
+        {
+          id: 1,
+          title: "The Matrix Resurrections",
+          poster_path: "https://image.tmdb.org/t/p/w500/8c4a8kE7PizaGQQnditMmI1xbRp.jpg",
+          release_date: "2021-12-22",
+          genres: ["Action", "Sci-Fi"],
+          overview: "Return to a world of two realities: one, everyday life; the other, what lies behind it. To find out if his reality is a construct, to truly know himself, Mr. Anderson will have to choose to follow the white rabbit once more.",
+          rating: 6.8
+        },
+        {
+          id: 2,
+          title: "Dune",
+          poster_path: "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
+          release_date: "2021-10-22",
+          genres: ["Sci-Fi", "Adventure"],
+          overview: "Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding, must travel to the most dangerous planet in the universe to ensure the future of his family and his people.",
+          rating: 8.1
+        },
+        {
+          id: 3,
+          title: "Blade Runner 2049",
+          poster_path: "https://image.tmdb.org/t/p/w500/gajva2L0rPYkEWjzgFlBXCAVBE5.jpg",
+          release_date: "2017-10-06",
+          genres: ["Sci-Fi", "Drama"],
+          overview: "Thirty years after the events of the first film, a new blade runner, LAPD Officer K, unearths a long-buried secret that has the potential to plunge what's left of society into chaos.",
+          rating: 8.0
+        },
+        {
+          id: 4,
+          title: "Interstellar",
+          poster_path: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+          release_date: "2014-11-07",
+          genres: ["Adventure", "Drama", "Sci-Fi"],
+          overview: "The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.",
+          rating: 8.6
+        },
+        {
+          id: 5,
+          title: "Arrival",
+          poster_path: "https://image.tmdb.org/t/p/w500/x2FJsf1ElAgr63Y3PNPtJrcmpoe.jpg",
+          release_date: "2016-11-11",
+          genres: ["Drama", "Sci-Fi"],
+          overview: "Taking place after alien crafts land around the world, an expert linguist is recruited by the military to determine whether they come in peace or are a threat.",
+          rating: 7.9
+        },
+        {
+          id: 6,
+          title: "Ex Machina",
+          poster_path: "https://image.tmdb.org/t/p/w500/7GMPb8oFnlCeCVnQjaDG0He9Rnc.jpg",
+          release_date: "2015-04-24",
+          genres: ["Drama", "Sci-Fi", "Thriller"],
+          overview: "A young programmer is selected to participate in a ground-breaking experiment in synthetic intelligence by evaluating the human qualities of a highly advanced humanoid A.I.",
+          rating: 7.7
+        },
+        {
+          id: 7,
+          title: "The Martian",
+          poster_path: "https://image.tmdb.org/t/p/w500/5BHuvQ6p9kfc091Z8RiFNhCwL4b.jpg",
+          release_date: "2015-10-02",
+          genres: ["Adventure", "Drama", "Sci-Fi"],
+          overview: "An astronaut becomes stranded on Mars after his team assume him dead, and must rely on his ingenuity to find a way to signal to Earth that he is alive.",
+          rating: 8.0
+        },
+        {
+          id: 8,
+          title: "Inception",
+          poster_path: "https://image.tmdb.org/t/p/w500/edv5CZvWj09upOsy2Y6IwDhK8bt.jpg",
+          release_date: "2010-07-16",
+          genres: ["Action", "Adventure", "Sci-Fi"],
+          overview: "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO.",
+          rating: 8.8
+        }
+      ];
+
+      // Render movie cards
+      function renderMovieCards(movies) {
+        const moviesGrid = document.getElementById('moviesGrid');
+        moviesGrid.innerHTML = '';
+        
+        movies.forEach(movie => {
+          // Process movie data to match expected format
+          const processedMovie = {
+            id: movie.id || Math.random(),
+            title: movie.title,
+            posterPath: movie.poster_path ? 
+              `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 
+              movie.posterPath || 'https://via.placeholder.com/500x750?text=No+Poster',
+            releaseDate: movie.release_date || movie.releaseDate || '',
+            genres: movie.genres || [],
+            overview: movie.overview || '',
+            rating: movie.vote_average || movie.rating || 0
+          };
+          
+          const card = createMovieCard(processedMovie);
+          moviesGrid.appendChild(card);
+        });
+      }
+
+      // Create a movie card element
+      function createMovieCard(movie) {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = "group relative overflow-hidden rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-cinema-purple/20";
+        
+        cardDiv.innerHTML = `
+          <div class="h-full flex flex-col">
+            <div class="relative aspect-[2/3] overflow-hidden">
+              <img 
+                src="${movie.posterPath}"
+                alt="${movie.title} poster"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
+
+            <div class="flex-grow glass-card p-4 bg-black/80">
+              <div class="flex justify-between items-start">
+                <h3 class="font-bold text-white text-lg leading-tight line-clamp-2">${movie.title}</h3>
+                <div class="flex items-center bg-cinema-purple/20 rounded-md px-2 py-1 text-xs">
+                  <i class="fas fa-star text-yellow-400 mr-1"></i>
+                  <span class="text-white">${movie.rating}</span>
+                </div>
+              </div>
+              
+              <div class="mt-2 flex flex-wrap gap-1">
+                ${movie.genres.slice(0, 2).map(genre => `
+                  <span class="text-xs px-2 py-1 rounded-full bg-cinema-purple/30 text-cinema-purple-light">
+                    ${genre}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="absolute inset-0 bg-black/90 flex flex-col justify-center items-center p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <h3 class="font-bold text-cinema-purple text-xl mb-2">${movie.title}</h3>
+              <p class="text-gray-300 text-sm mb-4 line-clamp-4">${movie.overview}</p>
+              <div class="flex gap-2 mt-auto">
+                <button class="px-3 py-1.5 bg-cinema-purple hover:bg-cinema-purple-vibrant text-white rounded-md transition-colors">
+                  Details
+                </button>
+                <button class="px-3 py-1.5 bg-transparent border border-cinema-purple text-cinema-purple hover:text-white hover:bg-cinema-purple rounded-md transition-colors">
+                  Watch Trailer
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        return cardDiv;
+      }
+
+      // Initial check for navbar styling
+      if (window.scrollY > 10) {
+        document.getElementById('navbar').classList.add('bg-black/80', 'backdrop-blur-md', 'shadow-lg', 'py-2');
+        document.getElementById('navbar').classList.remove('py-4', 'bg-transparent');
+      }
+    </script>
+    
+    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  </body>
+</html>
